@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="?attr/actionBarSize"
+    android:weightSum="100"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:background="@color/yellow_dull">
+
+
+    <RelativeLayout
+        android:id="@+id/back_arrow_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="10"
+        android:visibility="visible">
+
+        <ImageButton
+            android:id="@+id/toolbar_back_arrow"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_centerInParent="true"
+            android:background="?attr/selectableItemBackground"
+            android:src="@drawable/ic_baseline_arrow_back_24"
+            android:tint="#000000" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/checkmark_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="10"
+        android:visibility="gone">
+
+        <ImageButton
+            android:id="@+id/toolbar_check"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_centerInParent="true"
+            android:background="?attr/selectableItemBackground"
+            android:src="@drawable/ic_baseline_check_24"
+            android:tint="#000000" />
+
+    </RelativeLayout>
+
+
+    <TextView
+        android:id="@+id/note_title_tv"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="85"
+        android:text="TITLE"
+        android:textColor="@color/black"
+        android:textSize="25dp"
+        android:layout_marginStart="15dp"
+        android:visibility="visible"/>
+
+    <EditText
+        android:id="@+id/note_title_et"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="85"
+        android:text="TITLE"
+        android:textColor="@color/black"
+        android:textSize="23dp"
+        android:layout_marginStart="15dp"
+        android:background="@color/white"
+        android:visibility="gone"
+        android:padding="5dp"/>
+
+
+</LinearLayout>
