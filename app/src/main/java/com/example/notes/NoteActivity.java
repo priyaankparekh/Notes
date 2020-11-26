@@ -4,6 +4,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -15,12 +17,18 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.notes.models.NotesModel;
+import com.example.notes.persistence.NoteRepository;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class NoteActivity extends AppCompatActivity implements
         View.OnTouchListener,
         GestureDetector.OnGestureListener,
         GestureDetector.OnDoubleTapListener,
-        View.OnClickListener {
+        View.OnClickListener,
+        TextWatcher {
 
     private static final String TAG = "NoteActivity";
 
@@ -37,6 +45,9 @@ public class NoteActivity extends AppCompatActivity implements
 
     private boolean mIsNewNote;
     private NotesModel mInitialNote;
+    private NotesModel mFinalNote;
+
+    private NoteRepository mNoteRepository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +61,8 @@ public class NoteActivity extends AppCompatActivity implements
         mBackArrowConatainer = findViewById(R.id.back_arrow_container);
         mChcek = findViewById(R.id.toolbar_check);
         mBackArrow = findViewById(R.id.toolbar_back_arrow);
+
+        mNoteRepository = new NoteRepository(this);
 
         if (getIncomingIntent()) {
             //new note (Edit mode)
@@ -87,6 +100,21 @@ public class NoteActivity extends AppCompatActivity implements
 
         disableContentInteraction();
 
+        String temp = mLinedEditText.getText().toString();
+        temp = temp.replace("\n","");
+        temp = temp.replace(" ","");
+        if(temp.length()>0)
+        {
+            mFinalNote.setTitle(mEditTitle.getText().toString());
+            mFinalNote.setContent(mLinedEditText.getText().toString());
+            String timestamp = getCurrentTimestamp();
+            mFinalNote.setTimestamp(timestamp);
+        }
+        if(!mFinalNote.getContent().equals(mInitialNote.getContent()) ||
+                !mFinalNote.getTitle().equals(mInitialNote.getTitle()))
+        {
+            saveChanges();
+        }
     }
 
     private void hideSoftKeyboard()
@@ -106,11 +134,18 @@ public class NoteActivity extends AppCompatActivity implements
         mViewTitle.setOnClickListener(this);
         mChcek.setOnClickListener(this);
         mBackArrow.setOnClickListener(this);
+        mEditTitle.addTextChangedListener(this);
     }
 
     public boolean getIncomingIntent() {
         if (getIntent().hasExtra("selected_note")) {
             mInitialNote = getIntent().getParcelableExtra("selected_note");
+
+            mFinalNote = new NotesModel();
+            mFinalNote.setTitle(mInitialNote.getTitle());
+            mFinalNote.setContent(mInitialNote.getContent());
+            mFinalNote.setTimestamp(mInitialNote.getTimestamp());
+            mFinalNote.setId(mInitialNote.getId());
 
             mMode = EDIT_MODE_DISABLED;
             mIsNewNote = false;
@@ -122,10 +157,34 @@ public class NoteActivity extends AppCompatActivity implements
         return true;
     }
 
+    private void saveChanges(){
+        if(mIsNewNote)
+        {
+            saveNewNote();
+        }
+        else
+        {
+            updateNote();
+        }
+    }
+
+    private void updateNote(){
+        mNoteRepository.updateNote(mFinalNote);
+    }
+
+    private void saveNewNote(){
+        mNoteRepository.insertNoteTask(mFinalNote);
+    }
+
     private void setNewNoteProperties()
     {// new note
         mViewTitle.setText("Note Title");
         mEditTitle.setText("Note Title");
+
+        mInitialNote = new NotesModel();
+        mFinalNote = new NotesModel();
+        mInitialNote.setTitle("Note Title");
+        mFinalNote.setTitle("Note Title");
     }
 
     private void setNoteProperties()
@@ -241,5 +300,32 @@ public class NoteActivity extends AppCompatActivity implements
         else {
             super.onBackPressed();
         }
+    }
+
+    public static String getCurrentTimestamp(){
+        try{
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
+            String currentDateTime = simpleDateFormat.format(new Date());
+
+            return currentDateTime;
+        }catch (Exception e){
+            return null;
+        }
+    }
+
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+    }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+        mViewTitle.setText(s.toString());
+    }
+
+    @Override
+    public void afterTextChanged(Editable s) {
+
     }
 }

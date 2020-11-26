@@ -2,6 +2,7 @@ package com.example.notes;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -14,9 +15,12 @@ import android.view.View;
 
 import com.example.notes.adapters.NotesRecyclerAdapter;
 import com.example.notes.models.NotesModel;
+import com.example.notes.persistence.NoteRepository;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Observable;
 
 public class HomeScreen extends AppCompatActivity implements
         NotesRecyclerAdapter.OnNoteListener,
@@ -28,6 +32,8 @@ public class HomeScreen extends AppCompatActivity implements
     private ArrayList<NotesModel> mNotes = new ArrayList<>();
     private NotesRecyclerAdapter mNoteRecyclerAdapter;
 
+    private NoteRepository mNoteRepositoy;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,21 +44,28 @@ public class HomeScreen extends AppCompatActivity implements
 
         findViewById(R.id.fab).setOnClickListener(this);
 
+        mNoteRepositoy = new NoteRepository(this);
+
         initRecyclerView();
-        insertFakeNotes();
+        retrieveNotes();
     }
 
-    private void insertFakeNotes()
-    {
-        for(int i = 0;i<1000;i++)
-        {
-            NotesModel note = new NotesModel();
-            note.setTitle("Title # "+ i);
-            note.setContent("Content # "+i);
-            note.setTimestamp("Nov 2020");
-            mNotes.add(note);
-        }
-        mNoteRecyclerAdapter.notifyDataSetChanged();
+    private void retrieveNotes(){
+        mNoteRepositoy.retrieveNotesTask().observe(this, new Observer<List<NotesModel>>() {
+            @Override
+            //Any database calls using LiveData are ASYNCHRONOUS i.e they operate on BG Thread
+            public void onChanged(List<NotesModel> notesModels) {
+                if(mNotes.size() > 0)
+                {
+                    mNotes.clear();
+                }
+                if(notesModels != null)
+                {
+                    mNotes.addAll(notesModels);
+                }
+                mNoteRecyclerAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     private void initRecyclerView()
@@ -65,7 +78,6 @@ public class HomeScreen extends AppCompatActivity implements
         new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(mRecyclerView);
         mNoteRecyclerAdapter = new NotesRecyclerAdapter(mNotes,this);
         mRecyclerView.setAdapter(mNoteRecyclerAdapter);
-
     }
 
     @Override
@@ -89,6 +101,8 @@ public class HomeScreen extends AppCompatActivity implements
     {
         mNotes.remove(note);
         mNoteRecyclerAdapter.notifyDataSetChanged();
+
+        mNoteRepositoy.deleteNote(note);
     }
 
     private ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {

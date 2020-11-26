@@ -3,10 +3,24 @@ package com.example.notes.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.Ignore;
+import androidx.room.PrimaryKey;
+
+@Entity(tableName = "notes")
 public class NotesModel implements Parcelable {
 
+    @PrimaryKey(autoGenerate = true)
+    private int id;
+
+    @ColumnInfo(name = "title")
     private String title;
+
+    @ColumnInfo(name = "content")
     private String content;
+
+    @ColumnInfo(name = "timestamp")
     private String timestamp;
 
     public NotesModel(String title, String content, String timestamp) {
@@ -15,10 +29,12 @@ public class NotesModel implements Parcelable {
         this.timestamp = timestamp;
     }
 
+    @Ignore
     public NotesModel(){
     }
 
     protected NotesModel(Parcel in) {
+        id = in.readInt();
         title = in.readString();
         content = in.readString();
         timestamp = in.readString();
@@ -35,6 +51,14 @@ public class NotesModel implements Parcelable {
             return new NotesModel[size];
         }
     };
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getId() {
+        return id;
+    }
 
     public String getTitle() {
         return title;
@@ -61,23 +85,26 @@ public class NotesModel implements Parcelable {
     }
 
     @Override
-    public String toString() {
-        return "NotesModel{" +
-                "title='" + title + '\'' +
-                ", content='" + content + '\'' +
-                ", timestamp='" + timestamp + '\'' +
-                '}';
-    }
-
-    @Override
     public int describeContents() {
         return 0;
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+
+        dest.writeInt(id);
         dest.writeString(title);
         dest.writeString(content);
         dest.writeString(timestamp);
+    }
+
+    @Override
+    public String toString() {
+        return "NotesModel{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", content='" + content + '\'' +
+                ", timestamp='" + timestamp + '\'' +
+                '}';
     }
 }

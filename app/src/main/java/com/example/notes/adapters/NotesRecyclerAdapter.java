@@ -1,5 +1,6 @@
 package com.example.notes.adapters;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +17,7 @@ import com.example.notes.models.NotesModel.*;
 
 public class NotesRecyclerAdapter extends RecyclerView.Adapter<NotesRecyclerAdapter.ViewHolder>{
 
+    private static final String TAG = "NotesRecyclerAdapter";
     private ArrayList<NotesModel> mNotes = new ArrayList<>();
     private OnNoteListener mOnNoteListener;
 
@@ -34,9 +36,19 @@ public class NotesRecyclerAdapter extends RecyclerView.Adapter<NotesRecyclerAdap
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) { //called for every single entry in the list
 
-        holder.timestamp.setText(mNotes.get(position).getTimestamp());
-        holder.title.setText(mNotes.get(position).getTitle());
+        try{
+            /*String date = mNotes.get(position).getTimestamp().substring(0,1);
+            String month = mNotes.get(position).getTimestamp().substring(2,3);
+            String year = mNotes.get(position).getTimestamp().substring(4);
+            String timestamp = date+"/"+month+"/"+year;*/
+            String timestamp = mNotes.get(position).getTimestamp();
 
+            holder.timestamp.setText(timestamp);
+            holder.title.setText(mNotes.get(position).getTitle());
+        }catch (Exception e)
+        {
+            Log.e(TAG, "onBindViewHolder: onBindViewHolder" + e.getMessage());
+        }
     }
 
     @Override
