@@ -2,5 +2,5 @@
 
 A Notes application using Room Persistence Library in Android (Java)
 
-![ss1](https://github.com/priyaankparekh/Notes/blob/master/Screenshot1.jpg)
-![ss2](https://github.com/priyaankparekh/Notes/blob/master/Screenshot2.jpeg)
+<img src="Screenshot1.jpg" width="300" height="550">
+<img src="Screenshot2.jpeg" width="300" height="550">
